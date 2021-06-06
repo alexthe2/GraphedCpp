@@ -1,6 +1,6 @@
 #pragma once
-class GraphVertex : Comparable {
+class GraphVertex {
 
 public:
-	auto equals(const Comparable& copy) const -> bool override;
+	virtual auto equals(GraphVertex* copy) const -> bool = 0;
 };

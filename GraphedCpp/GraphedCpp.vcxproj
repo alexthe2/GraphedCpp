@@ -116,6 +116,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -139,14 +140,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Comparable.h" />
     <ClInclude Include="Graphed.h" />
     <ClInclude Include="GraphEdge.h" />
     <ClInclude Include="GraphVertex.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Comparable.cpp" />
     <ClCompile Include="Graphed.cpp" />
     <ClCompile Include="GraphEdge.cpp" />
   </ItemGroup>

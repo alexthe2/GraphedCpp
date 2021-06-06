@@ -1,54 +1,119 @@
 #include "Graphed.h"
+#include "Utils.h"
 
 #include <algorithm>
 
-
-#include "Utils.h"
-
-Graphed::Graphed() {
-	this->adjacency_list_ = std::map<GraphVertex, std::vector<AdjacencyConnection>>();
+template <typename Vertex, typename Edge>
+requires CheckType<Vertex, GraphVertex> && CheckType<Edge, GraphEdge>
+Graphed<Vertex, Edge>::Graphed(bool auto_clean) {
+	this->adjacency_list_ = std::map<Vertex*, std::vector<AdjacencyConnection>>();
+	this->auto_clean_ = auto_clean;
 }
 
-auto Graphed::insertEdge(GraphVertex from, GraphVertex to, GraphEdge edge) -> void {
+template <typename Vertex, typename Edge>
+requires CheckType<Vertex, GraphVertex> && CheckType<Edge, GraphEdge>
+Graphed<Vertex, Edge>::~Graphed() {
+    
+}
+
+template <typename Vertex, typename Edge>
+requires CheckType<Vertex, GraphVertex> && CheckType<Edge, GraphEdge>
+auto Graphed<Vertex, Edge>::insertEdge(Vertex* from, Vertex* to, Edge* edge) -> void {
 	const auto elem = this->adjacency_list_.find(from);
 
 	if (elem == this->adjacency_list_.end()) {
-		this->adjacency_list_.insert(std::pair<GraphVertex, std::vector<AdjacencyConnection>>(from, std::vector<AdjacencyConnection>(1, AdjacencyConnection(to, edge))));
+		this->adjacency_list_.insert(std::pair<Vertex*, std::vector<AdjacencyConnection>>(from, std::vector<AdjacencyConnection>(1, AdjacencyConnection(to, edge))));
 	} else {
 		elem->second.emplace_back(AdjacencyConnection(to, edge));
 	}
 }
 
-auto Graphed::insertBiEdge(GraphVertex vertex1, GraphVertex vertex2, GraphEdge value) -> void {
+template <typename Vertex, typename Edge>
+requires CheckType<Vertex, GraphVertex> && CheckType<Edge, GraphEdge>
+auto Graphed<Vertex, Edge>::insertBiEdge(Vertex* vertex1, Vertex* vertex2, Edge* value) -> void {
 	this->insertEdge(vertex1, vertex2, value);
 	this->insertEdge(vertex2, vertex1, value);
 }
 
-auto Graphed::removeEdge(GraphVertex from, GraphVertex to, GraphEdge value) -> bool {
+template <typename Vertex, typename Edge>
+requires CheckType<Vertex, GraphVertex> && CheckType<Edge, GraphEdge>
+auto Graphed<Vertex, Edge>::insertVertex(Vertex* vertex) -> void {
+	const auto elem = this->adjacency_list_.find(vertex);
+
+	if(elem == this->adjacency_list_.end()) {
+		this->adjacency_list_.insert(std::pair<Vertex*, std::vector<AdjacencyConnection>>(vertex, std::vector<AdjacencyConnection>()));
+	}
+}
+
+template <typename Vertex, typename Edge>
+requires CheckType<Vertex, GraphVertex>&& CheckType<Edge, GraphEdge>
+auto Graphed<Vertex, Edge>::removeVertex(Vertex* vertex) -> bool {
+	const auto elem = this->adjacency_list_.find(vertex);
+
+	if (elem == this->adjacency_list_.end()) {
+		return false;
+	}
+
+	// TODO: It's missing
+}
+
+template <typename Vertex, typename Edge>
+requires CheckType<Vertex, GraphVertex>&& CheckType<Edge, GraphEdge>
+auto Graphed<Vertex, Edge>::removeVertex(Vertex* vertex, bool auto_clean_override) -> bool {
+    
+}
+
+template <typename Vertex, typename Edge>
+requires CheckType<Vertex, GraphVertex>&& CheckType<Edge, GraphEdge>
+auto Graphed<Vertex, Edge>::removeEdge(Vertex* from, Vertex* to, Edge* value) -> bool {
 	const auto elem = this->adjacency_list_.find(from);
 
 	if(elem == this->adjacency_list_.end()) {
 		return false;
 	}
 	
-	IGNORE(remove(elem->second.begin(), elem->second.end(), AdjacencyConnection(to,value)));
+	IGNORE(remove(elem->second.begin(), elem->second.end(), AdjacencyConnection(to, value)));
 	return true;
 }
 
-auto Graphed::changeEdge(GraphVertex from, GraphVertex to, GraphEdge oldValue, GraphEdge newValue) -> bool {
+template <typename Vertex, typename Edge>
+requires CheckType<Vertex, GraphVertex> && CheckType<Edge, GraphEdge>
+auto Graphed<Vertex, Edge>::removeEdge(Vertex* from, Vertex* to, Edge* value, bool auto_clean_override) -> bool {}
+
+template <typename Vertex, typename Edge>
+requires CheckType<Vertex, GraphVertex>&& CheckType<Edge, GraphEdge>
+auto Graphed<Vertex, Edge>::changeEdge(Vertex* from, Vertex* to, Edge *old_value, Edge *new_value) -> bool {
+	return changeEdge(from, to, old_value, new_value, this->auto_clean_);
+}
+
+template <typename Vertex, typename Edge>
+requires CheckType<Vertex, GraphVertex> && CheckType<Edge, GraphEdge>
+auto Graphed<Vertex, Edge>::changeEdge(Vertex* from, Vertex* to, Edge* old_value, Edge* new_value,
+                         const bool auto_clean_override) -> bool {
 	const auto elem = this->adjacency_list_.find(from);
 
 	if (elem == this->adjacency_list_.end()) {
 		return false;
 	}
 
-	std::replace(elem->second.begin(), elem->second.end(), AdjacencyConnection(to, oldValue), AdjacencyConnection(to, newValue));
+	const auto old_element = *(std::find(elem->second.begin(), elem->second.end(), old_value));
+
+	std::replace(elem->second.begin(), elem->second.end(),
+		AdjacencyConnection(to, old_value), AdjacencyConnection(to, new_value));
+
+	if(auto_clean_override) {
+		delete old_element.first;
+		delete old_element.second;
+	}
+
 	return true;
 }
 
-auto Graphed::getAllEdges(GraphVertex from, GraphVertex to) -> std::vector<GraphEdge> {
+template <typename Vertex, typename Edge>
+requires CheckType<Vertex, GraphVertex> && CheckType<Edge, GraphEdge>
+auto Graphed<Vertex, Edge>::getAllEdges(Vertex* from, Vertex* to) -> std::vector<Edge*> {
 	const auto elem = this->adjacency_list_.find(from);
-	auto edges = std::vector<GraphEdge>();
+	auto edges = std::vector<Edge>();
 	
 	if(elem != this->adjacency_list_.end()) {
 		for(const auto& entry : elem->second) {
@@ -59,9 +124,11 @@ auto Graphed::getAllEdges(GraphVertex from, GraphVertex to) -> std::vector<Graph
 	return edges;
 }
 
-auto Graphed::getAllConnectingNodes(GraphVertex from) -> std::vector<GraphVertex> {
+template <typename Vertex, typename Edge>
+requires CheckType<Vertex, GraphVertex>&& CheckType<Edge, GraphEdge>
+auto Graphed<Vertex, Edge>::getAllConnectingNodes(Vertex* from) -> std::vector<Vertex*> {
 	const auto elem = this->adjacency_list_.find(from);
-	auto edges = std::vector<GraphVertex>();
+	auto edges = std::vector<Vertex>();
 
 	if (elem != this->adjacency_list_.end()) {
 		for (const auto& entry : elem->second) {
@@ -72,8 +139,10 @@ auto Graphed::getAllConnectingNodes(GraphVertex from) -> std::vector<GraphVertex
 	return edges;
 }
 
-auto Graphed::constructMatrix() -> std::vector<std::vector<int>> {
-	auto lut = std::map<GraphVertex, int>();
+template <typename Vertex, typename Edge>
+requires CheckType<Vertex, GraphVertex>&& CheckType<Edge, GraphEdge>
+auto Graphed<Vertex, Edge>::constructMatrix() -> std::vector<std::vector<int>> {
+	auto lut = std::map<Vertex*, int>();
 	auto i = 0;
 	for (const auto& entry : this->adjacency_list_) {
 		lut.emplace(entry.first, i++);
@@ -82,7 +151,7 @@ auto Graphed::constructMatrix() -> std::vector<std::vector<int>> {
 	auto matrix = std::vector<std::vector<int>>(i, std::vector<int>(i, -1));
 	for (const auto& entry : this->adjacency_list_) {
 		for (const auto& to : entry.second) {
-			matrix.at(lut.at(entry.first)).at(lut.at(to.first)) = to.second.calculateValue();
+			matrix.at(lut.at(entry.first)).at(lut.at(to.first)) = to.second->calculateValue();
 		}
 	}
 

@@ -24,9 +24,6 @@
     <ClInclude Include="GraphVertex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Comparable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -36,9 +33,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GraphEdge.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Comparable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

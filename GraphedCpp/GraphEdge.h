@@ -1,12 +1,23 @@
 #pragma once
-#include "Comparable.h"
 
-class GraphEdge : Comparable
+class GraphEdge
 {
 public:
 	GraphEdge() = default;
+	~GraphEdge() = default;
 	
-	virtual auto calculateValue() const -> int;
-	auto equals(const Comparable& copy) const -> bool override;
+	[[nodiscard]] virtual auto calculateValue() const -> int = 0;
+	[[nodiscard]] virtual auto equals(GraphEdge* copy) const -> bool;
 };
+
+class NumericEdge final : public GraphEdge {
+public:
+	explicit NumericEdge(int value);
+
+    [[nodiscard]] auto calculateValue() const -> int override;
+
+private:
+	int value_;
+};
+
 

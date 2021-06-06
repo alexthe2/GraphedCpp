@@ -6,25 +6,38 @@
 #include "GraphVertex.h"
 
 // ReSharper disable once CppInconsistentNaming
-#define AdjacencyConnection std::pair<GraphVertex, GraphEdge>
+#define AdjacencyConnection std::pair<Vertex*, Edge*>  // NOLINT(cppcoreguidelines-macro-usage)
 
+template <class Type, class BaseClass>
+concept CheckType = std::is_base_of<BaseClass, Type>::value;
+
+template <typename Vertex, typename Edge>
+requires CheckType<Vertex, GraphVertex> && CheckType<Edge, GraphEdge>
 class Graphed {
 public:
-	Graphed();
+	explicit Graphed(bool auto_clean=true);
+	~Graphed();
 
-	auto insertEdge(GraphVertex from, GraphVertex to, GraphEdge edge) -> void;
-	auto insertBiEdge(GraphVertex vertex1, GraphVertex vertex2, GraphEdge value) -> void;
-	
-	auto removeEdge(GraphVertex from, GraphVertex to, GraphEdge value) -> bool;
-	auto changeEdge(GraphVertex from, GraphVertex to, GraphEdge oldValue, GraphEdge newValue) -> bool;
+	auto insertEdge(Vertex* from, Vertex* to, Edge* edge) -> void;
+	auto insertBiEdge(Vertex* vertex1, Vertex* vertex2, Edge* value) -> void;
 
-	auto getAllEdges(GraphVertex from, GraphVertex to) -> std::vector<GraphEdge>;
-	auto getAllConnectingNodes(GraphVertex from)->std::vector<GraphVertex>;
+	auto insertVertex(Vertex* vertex) -> void;
+	auto removeVertex(Vertex* vertex) -> bool;
+	auto removeVertex(Vertex* vertex, bool auto_clean_override) -> bool;
+
+	auto removeEdge(Vertex* from, Vertex* to, Edge* value) -> bool;
+	auto removeEdge(Vertex* from, Vertex* to, Edge* value, bool auto_clean_override) -> bool;
+	auto changeEdge(Vertex* from, Vertex* to, Edge* old_value, Edge* new_value) -> bool;
+	auto changeEdge(Vertex* from, Vertex* to, Edge* old_value, Edge* new_value, bool auto_clean_override) -> bool;
+
+	[[nodiscard]] auto getAllEdges(Vertex* from, Vertex* to) -> std::vector<Edge*>;
+	[[nodiscard]] auto getAllConnectingNodes(Vertex* from)->std::vector<Vertex*>;
 	
-	auto constructMatrix() -> std::vector<std::vector<int>>;
+	[[nodiscard]] auto constructMatrix() -> std::vector<std::vector<int>>;
 
 private:
-	std::map<GraphVertex, std::vector<AdjacencyConnection>> adjacency_list_;
+	bool auto_clean_;
+	std::map<Vertex*, std::vector<AdjacencyConnection>> adjacency_list_;
 };
 
 
